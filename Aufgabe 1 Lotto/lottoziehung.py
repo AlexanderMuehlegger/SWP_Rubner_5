@@ -13,6 +13,7 @@ MAX_ZAHL = 45
 for x in range(1, MAX_ZAHL+1):
     zahlen_pool.append(x)
 
+random.shuffle(zahlen_pool)
 
 def lotto_ziehung(pool):
     if len(pool) <= 0:
