@@ -1,5 +1,5 @@
 from enum import Enum
-from tokenize import Special
+import random as rand
 
 class CardType(Enum):
     Clubs = 1
@@ -49,8 +49,25 @@ CARD_SYMBOL_START = 2
 
 cards = []
 
-def get_combination(cards):
-    pass
+def get_combination(_drawing):
+    #Straße
+    if(any(x.symbol == 5 or x.symbol == 10 for x in _drawing)):
+        _drawing.sort(key=lambda card: card.symbol)
+        
+        drawing_symbols = [card.symbol for card in _drawing]
+        print(drawing_symbols)
+        
+        if(drawing_symbols.count(drawing_symbols[0]) == 1 \
+            and drawing_symbols.count(drawing_symbols[1]) == 1 \
+            and drawing_symbols.count(drawing_symbols[2]) == 1 \
+            and drawing_symbols.count(drawing_symbols[3]) == 1):
+
+            if(max(drawing_symbols)-min(drawing_symbols) < 5):
+                return True
+            else:
+                return False
+
+        
 
 def init_cards():
     global cards
@@ -58,12 +75,42 @@ def init_cards():
         for i in range(CARD_SYMBOL_START, CARD_SYMBOLS+CARD_SYMBOL_START):
             cards.append(Card(i, type))
 
+def drawing(count):
+    rand.shuffle(cards)
+    rand_cards = []
+    min = 0
+    max = len(cards)-1
+    for i in range(count):
+        rand_index = rand.randrange(min, max)
+        rand_card = cards[rand_index]
+        cards[rand_index], cards[max] = cards[max], cards[rand_index]
+        max-=1
+        rand_cards.append(rand_card)
+    return rand_cards
+
 def init():
     init_cards()
 
-if __name__ == "__main__":
-    init()
-    for i in cards:
+def printCards(arr):
+    for i in arr:
         print(i.toString())
         print("------------------")
+
+if __name__ == "__main__":
+    init()
+    # drawing = drawing(5)
+
+    # printCards(drawing)
+    # print("\n")
+
+    # get_combination(drawing)
+    draw = []
+    street = False
+
+    while(not street):
+        draw = drawing(5)
+        street = get_combination(draw)
+        
+    printCards(draw)
+
 
