@@ -54,7 +54,7 @@ class Card:
         return SpecialCard(self.symbol)
         
 
-GAMES = 1000000
+GAMES = 100000
 MAX_CARDS = 52
 CARD_SYMBOLS = 13
 CARD_SYMBOL_START = 2
@@ -90,7 +90,6 @@ def get_combination(_drawing):
     if all(map(lambda card: card.type == _drawing[0].type, _drawing[1:])):
         statistic.flush += 1; return
     
-
     most_frequent = max(drawing_symbols, key=drawing_symbols.count)
     highest_occurence = drawing_symbols.count(most_frequent)
     
@@ -104,7 +103,6 @@ def get_combination(_drawing):
                 statistic.full_house += 1; return
             statistic.drilling += 1; return
         
-
         filtered_draw = list(filter(lambda symbol: symbol != most_frequent, drawing_symbols))
         if filtered_draw.count(max(filtered_draw, key=filtered_draw.count)) == 2:
             statistic.double_paar += 1; return
@@ -134,22 +132,6 @@ def drawing(count):
 def init():
     init_cards()
 
-def printCards(arr):
-    for i in arr:
-        print(i.toString())
-        print("------------------")
-
-if __name__ == "__main__":
-    init()
-
-    card = [
-        Card(5, CardType.Hearts),
-        Card(6, CardType.Hearts),
-        Card(7, CardType.Hearts),
-        Card(8, CardType.Hearts),
-        Card(9, CardType.Hearts),
-    ]
-
     prop = Statistic()
     prop.high_hand = 50.117
     prop.paar = 42.256
@@ -159,6 +141,7 @@ if __name__ == "__main__":
     prop.flush = 0.196
     prop.full_house = 0.144
     prop.vierling = 0.024
+    breakpoint()
     prop.straight_flush = 0.0013
     prop.royal_flush = 0.000154
 
@@ -172,4 +155,11 @@ if __name__ == "__main__":
     print(stat)
     for x in statistic_list:
         print("{0}: {1} -> {2:.3f}% (calculated) | {3}% (googled)".format(x,stat[x], (stat[x]/GAMES*100), vars(prop)[x]))
-    
+
+def printCards(arr):
+    for i in arr:
+        print(i.toString())
+        print("------------------")
+
+if __name__ == "__main__":
+    init()
