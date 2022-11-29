@@ -11,26 +11,61 @@ class SSP(Enum):
     Schere = 1
     Stein = 2
     Papier = 3
+    Spock = 4
+    Echse = 5
+
+    def __str__():
+        data = []
+        for e in SSP:
+            data.append([e.name, e.value])
+        print(tabulate(data, headers=("Name", "Value"), numalign="center"))
 
 class Error(Enum):
     NoNum = 100
 
-class Statistic:
-    draw = 1
-    player = 1
-    comp = 1
+class StatisticRes: #Result
+    def __init__(self):
+        self.draw = 1
+        self.player = 1
+        self.comp = 1
+
+class StatisticSymb:
+    def __init__(self):
+        self.player_stat = {}
+        self.comp_stat = {}
+    
+    def getFullStat(self):
+        stat = {}
+        
+        for x in self.comp_stat:
+            stat[x] = self.comp_stat[x]
+        
+        for x in self.player_stat:
+            stat[x] = self.player_stat.get(x, 0) +  self.player_stat[x]
+
+        return stat
 
 class SSP_Game:
+
+    win = {
+        SSP.Schere: [SSP.Papier, SSP.Echse],
+        SSP.Papier: [SSP.Stein, SSP.Spock],
+        SSP.Stein: [SSP.Echse, SSP.Schere],
+        SSP.Echse: [SSP.Spock, SSP.Papier],
+        SSP.Spock: [SSP.Schere, SSP.Stein]
+    }
 
     min_ssp = 1
     max_ssp = 3
 
     def __init__(self):
         self.status = Status.Stopped
+        SSP.__str__()
         self.init()
     
     def init(self):
-        self.statistic = Statistic()
+        self.statisticRes = StatisticRes()
+        self.statisticSymb = StatisticSymb()
         self.commandHandler = CommandHandler()
 
         exitCommand = Command(-1, exit, "Exit Programm", "exit")
@@ -42,6 +77,9 @@ class SSP_Game:
         statisticCommand = Command(-1, self.printStatistic, "Stop Game and print Statistic", "-s")
         self.commandHandler.addCommand(statisticCommand)
 
+        resetCommand = Command(-1, self.reset, "Resets current Statistic", "-r")
+        self.commandHandler.addCommand(resetCommand)
+    
 
     def start(self):
         self.printInfo()
@@ -49,6 +87,13 @@ class SSP_Game:
         self.processInput()
         self.status = Status.Running
         self.play()
+    
+    def reset(self):
+        self.status = Status.Paused
+        self.statisticRes = StatisticRes()
+        self.init_SymbStat()
+        print("Reset Complete!")
+        self.status = Status.Running
 
     def printInfo(self):
         print("".ljust(50, "-"))
@@ -65,28 +110,49 @@ class SSP_Game:
         print()
     
     def printStatistic(self):
-        stat = vars(self.statistic)
-        draws = sorted(stat, key=stat.get, reverse=True)
-        sum = 0
-        for x in draws:
-            sum += stat[x]
+        stat_res = vars(self.statisticRes)
+        draws = sorted(stat_res, key=stat_res.get, reverse=True)
+        summ = 0
 
-        if sum == 0:
+        for x in stat_res:
+            summ += stat_res[x]
+
+        if summ == 0:
             return
 
-        data = []
+        data_res = []
         
         for x in draws:
-            data.append([x, stat[x], stat[x]/sum*100])
+            data_res.append([x, stat_res[x], round(stat_res[x]/summ*100, 2)])
+        
+        data_symb = []
+        stat_symb = self.statisticSymb.getFullStat()
+
+        for x in stat_symb:
+            data_symb.append([x.name, stat_symb[x], round(stat_symb[x]/summ*100, 2)]) #
 
         print()
-        print(tabulate(data, headers=['Outcome', 'Count', 'Procentage (%)']))
+        print(tabulate(data_res, headers=['Outcome', 'Count', 'Procentage (%)']))
         print()
+
+        print()
+        print(tabulate(data_symb, headers=['Symbol', 'Count', 'Percentage (%)']))
+        print()
+
 
     def play(self):
         max = self.max_ssp
         min = self.min_ssp
-        while(self.status is Status.Running):
+        paused_msg = False
+        while(self.status is not Status.Stopped):
+            if self.status is Status.Paused:
+                if  paused_msg == False:
+                    print("Game Paused! - Please Wait!")
+                    paused_msg = True
+                continue
+            
+            paused_msg = False
+
             print("Enter digit between {0}-{1}:".format(min, max))
             guess = self.processInput()
 
@@ -107,30 +173,25 @@ class SSP_Game:
             print()
 
             if draw == guess:
-                self.statistic.draw += 1
+                self.statisticRes.draw += 1
                 print("Draw!")
                 continue
 
             draw = SSP(draw)
             guess = SSP(guess)
 
-            if (draw == SSP.Schere and guess == SSP.Papier):
-                self.statistic.comp += 1
-                print("Computer won")
-                continue
+            self.statisticSymb.player_stat[draw] = self.statisticSymb.player_stat.get(draw, 0) + 1
+            self.statisticSymb.comp_stat[guess] = self.statisticSymb.comp_stat.get(guess, 0) + 1
 
-            if (draw == SSP.Papier and guess == SSP.Stein):
-                self.statistic.comp += 1
-                print("Computer won")
-                continue
 
-            if (draw == SSP.Stein and guess == SSP.Schere):
-                self.statistic.comp += 1
-                print("Computer won")
+            print(SSP.win)
+            if guess in self.win[draw]:
+                self.statisticRes.player += 1
                 continue
             
-            print("Player won")
-            self.statistic.player += 1
+            if draw in self.win[guess]:
+                self.statisticRes.comp += 1
+                continue
 
     def processInput(self, msg='> '):
         text = input(msg)
@@ -164,11 +225,17 @@ class CommandHandler:
         self.commands = []
     
     def runCommand(self, command):
+        if len(command) == 0:
+            return
         try:
-            id = [x for x in self.commands if x.command == command][0].id
+            id = [x for x in self.commands if x.command.__contains__(command)][0].id
         except IndexError:
             return -1
-            
+        
+        if isinstance(id, list):
+            print("Specify Command!")
+            return
+
         self.commands[id].run()
         return 1
     

@@ -5,7 +5,7 @@ http://www.samkass.com/theories/RPSSL.html
 2) Spielmodi COMP vs PLAYER
 3) zähle wer wie oft gewonnen
 4) zähle alle gewählte Symbole
-5) überlege wie die Daten dauerhaft gespeichert werden
+5) überlege wie die Daten dauerhaft gespeichert werden -> JSON in db
 6) biete ein Menü an Spielen, Statistik, Daten Uploaden
 7) erzeuge eine Flask-API-App um deine Statistik hochzuladen(Name+Symbol+Symbolanzahl)
 
