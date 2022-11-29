@@ -45,6 +45,27 @@ class StatisticSymb:
 
         return stat
 
+class TColors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+class Log:
+    def w(msg):
+        print(f"{TColors.WARNING}{msg}{TColors.ENDC}")
+
+    def e(msg):
+        print(f"{TColors.FAIL}{msg}{TColors.ENDC}")
+    
+    def s(msg):
+        print(f"{TColors.OKGREEN}{msg}{TColors.ENDC}")
+
 class SSP_Game:
 
     win = {
@@ -56,12 +77,12 @@ class SSP_Game:
     }
 
     min_ssp = 1
-    max_ssp = 3
+    max_ssp = 5
 
     def __init__(self):
         self.status = Status.Stopped
-        SSP.__str__()
         self.init()
+
     
     def init(self):
         self.statisticRes = StatisticRes()
@@ -77,17 +98,30 @@ class SSP_Game:
         statisticCommand = Command(-1, self.printStatistic, "Stop Game and print Statistic", "-s")
         self.commandHandler.addCommand(statisticCommand)
 
+        #FIXME: I am broken
         resetCommand = Command(-1, self.reset, "Resets current Statistic", "-r")
         self.commandHandler.addCommand(resetCommand)
+        
     
 
     def start(self):
         self.printInfo()
-        print("Press Enter if ready to start!")
-        self.processInput()
+        self.setDifficulty()
         self.status = Status.Running
         self.play()
     
+    def setDifficulty(self):
+        while True:
+            chosenDifficulty = self.processInput("Enter Difficulty 1-3:\n> ")
+            if str(chosenDifficulty).isdigit():
+                if int(chosenDifficulty) in range(1, 3+1):
+                    self.currDifficulty = chosenDifficulty
+                    break
+                else:
+                    Log.e("Number out of bounds!")
+            else:
+                Log.e("Only Numbers are allowed!")
+
     def reset(self):
         self.status = Status.Paused
         self.statisticRes = StatisticRes()
@@ -147,52 +181,65 @@ class SSP_Game:
         while(self.status is not Status.Stopped):
             if self.status is Status.Paused:
                 if  paused_msg == False:
-                    print("Game Paused! - Please Wait!")
+                    Log.w("Game Paused! - Please Wait!")
                     paused_msg = True
                 continue
             
             paused_msg = False
 
-            print("Enter digit between {0}-{1}:".format(min, max))
-            guess = self.processInput()
+            print(f"Enter digit between {min}-{max}: (Difficulty: {self.currDifficulty})")
+            player_pick = self.processInput()
 
             try:
-                if guess == '' or Error(guess) is Error.NoNum:
+                if player_pick == '' or Error(player_pick) is Error.NoNum:
                     continue
             except:
                 pass
 
-            if guess < min or guess > max:
-                print("OUT OF BOUNDS")
+            if int(player_pick) not in range(min, max+1):
+                Log.e("OUT OF BOUNDS")
                 continue
 
-            draw = random.randrange(min, max+1)
+            comp_pick = self.getComp(player_pick)
+            
 
-            print("\nPLayer: ", SSP(guess).name)
-            print("Computer: ", SSP(draw).name)
+            print("\nPLayer: ", SSP(player_pick).name)
+            print("Computer: ", SSP(comp_pick).name)
             print()
 
-            if draw == guess:
+            comp_pick = SSP(comp_pick)
+            player_pick = SSP(player_pick)
+
+            self.statisticSymb.player_stat[player_pick] = self.statisticSymb.player_stat.get(player_pick, 0) + 1
+            self.statisticSymb.comp_stat[comp_pick] = self.statisticSymb.comp_stat.get(comp_pick, 0) + 1
+            
+            if comp_pick == player_pick:
                 self.statisticRes.draw += 1
                 print("Draw!")
                 continue
 
-            draw = SSP(draw)
-            guess = SSP(guess)
-
-            self.statisticSymb.player_stat[draw] = self.statisticSymb.player_stat.get(draw, 0) + 1
-            self.statisticSymb.comp_stat[guess] = self.statisticSymb.comp_stat.get(guess, 0) + 1
+            
 
 
-            print(SSP.win)
-            if guess in self.win[draw]:
-                self.statisticRes.player += 1
+            if player_pick in SSP_Game.win[comp_pick]:
+                self.statisticRes.comp += 1
+                print("Computer won!")
                 continue
             
-            if draw in self.win[guess]:
-                self.statisticRes.comp += 1
+            if comp_pick in SSP_Game.win[player_pick]:
+                self.statisticRes.player += 1
+                print("Player won!")
                 continue
+    
+    def getComp(self, player_pick):
+        if self.currDifficulty == 1:
+            draw = random.randrange(min, max+1)
+        elif self.currDifficulty == 2:
+            print(self.statisticSymb.player_stat)
+        
+        return 1
 
+    
     def processInput(self, msg='> '):
         text = input(msg)
         if self.commandHandler.runCommand(text) == 1:
@@ -228,12 +275,12 @@ class CommandHandler:
         if len(command) == 0:
             return
         try:
-            id = [x for x in self.commands if x.command.__contains__(command)][0].id
+            id = [x for x in self.commands if x.command == command][0].id
         except IndexError:
             return -1
         
         if isinstance(id, list):
-            print("Specify Command!")
+            Log.w("Specify Command!")
             return
 
         self.commands[id].run()
