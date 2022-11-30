@@ -1,6 +1,7 @@
 from enum import Enum
 from tabulate import tabulate
 import random
+import quotes
 
 class Status(Enum):
     Running = 1
@@ -224,7 +225,10 @@ class SSP_Game:
 
             if player_pick in SSP_Game.win[comp_pick]:
                 self.statisticRes.comp += 1
-                print("Computer won!")
+                if(self.currDifficulty == 3):
+                    print(f"Computer won! - {quotes.randomQuote()}")
+                else:
+                    print("Computer won!")
                 continue
             
             if comp_pick in SSP_Game.win[player_pick]:
