@@ -1,72 +1,10 @@
-from enum import Enum
 from tabulate import tabulate
 import random
 import quotes
-
-class Status(Enum):
-    Running = 1
-    Paused = 2
-    Stopped = 3
-
-class SSP(Enum):
-    Schere = 1
-    Stein = 2
-    Papier = 3
-    Spock = 4
-    Echse = 5
-
-    def __str__():
-        data = []
-        for e in SSP:
-            data.append([e.name, e.value])
-        print(tabulate(data, headers=("Name", "Value"), numalign="center"))
-
-class Error(Enum):
-    NoNum = 100
-
-class StatisticRes: #Result
-    def __init__(self):
-        self.draw = 1
-        self.player = 1
-        self.comp = 1
-
-class StatisticSymb:
-    def __init__(self):
-        self.player_stat = {}
-        self.comp_stat = {}
-    
-    def getFullStat(self):
-        stat = {}
-        
-        for x in self.comp_stat:
-            stat[x] = self.comp_stat[x]
-        
-        for x in self.player_stat:
-            stat[x] = self.player_stat.get(x, 0) +  self.player_stat[x]
-
-        return stat
-    
-
-class TColors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-class Log:
-    def w(msg):
-        print(f"{TColors.WARNING}{msg}{TColors.ENDC}")
-
-    def e(msg):
-        print(f"{TColors.FAIL}{msg}{TColors.ENDC}")
-    
-    def s(msg):
-        print(f"{TColors.OKGREEN}{msg}{TColors.ENDC}")
+from enums import SSP, Error, Status
+from commands import Command, CommandHandler
+from statistics import StatisticRes, StatisticSymb
+from terminal import Log
 
 class SSP_Game:
 
@@ -100,7 +38,6 @@ class SSP_Game:
         statisticCommand = Command(-1, self.printStatistic, "Stop Game and print Statistic", "-s")
         self.commandHandler.addCommand(statisticCommand)
 
-        #FIXME: I am broken
         resetCommand = Command(-1, self.reset, "Resets current Statistic", "-r")
         self.commandHandler.addCommand(resetCommand)
 
@@ -131,14 +68,16 @@ class SSP_Game:
         self.status = Status.Paused
         self.statisticRes = StatisticRes()
         self.statisticSymb = StatisticSymb()
-        print("Reset Complete!")
+        Log.s("Reset Complete!")
         self.status = Status.Running
+        self.setDifficulty()
 
     def printInfo(self):
         print("".ljust(50, "-"))
-        print("Schere, Stein, Papier".center(50, " "))
-        print("See all command with -h".center(50, " "))
+        print("Schere, Stein, Papier, Spock, Echse".center(50, " "))
+        print("See all commands with -h".center(50, " "))
         print("".ljust(50, "-"))
+        SSP.__str__()
 
     def printHelp(self):
         print()
@@ -270,44 +209,6 @@ class SSP_Game:
             return Error.NoNum
         return text
 
-class Command:
-    def __init__(self, id, method, description, command):
-        self.id = id
-        self.method = method
-        self.description = description
-        self.command = command
-
-    def run(self):
-        self.method()
-    
-    def __str__(self):
-        print("Description: {0}\nCommand: {1}\n".format(self.description, self.command))
-    
-    def getOutputList(self):
-        return [self.command, self.description]
-
-class CommandHandler:
-    def __init__(self):
-        self.commands = []
-    
-    def runCommand(self, command):
-        if len(command) == 0:
-            return
-        try:
-            id = [x for x in self.commands if x.command == command][0].id
-        except IndexError:
-            return -1
-        
-        if isinstance(id, list):
-            Log.w("Specify Command!")
-            return
-
-        self.commands[id].run()
-        return 1
-    
-    def addCommand(self, command):
-        command.id = len(self.commands)
-        self.commands.append(command)
 
 def main():
     game = SSP_Game()
