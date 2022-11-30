@@ -44,6 +44,7 @@ class StatisticSymb:
             stat[x] = self.player_stat.get(x, 0) +  self.player_stat[x]
 
         return stat
+    
 
 class TColors:
     HEADER = '\033[95m'
@@ -101,6 +102,9 @@ class SSP_Game:
         #FIXME: I am broken
         resetCommand = Command(-1, self.reset, "Resets current Statistic", "-r")
         self.commandHandler.addCommand(resetCommand)
+
+        difficultyCommand = Command(-1, self.setDifficulty, "Sets new Difficulty", "-d")
+        self.commandHandler.addCommand(difficultyCommand)
         
     
 
@@ -125,7 +129,7 @@ class SSP_Game:
     def reset(self):
         self.status = Status.Paused
         self.statisticRes = StatisticRes()
-        self.init_SymbStat()
+        self.statisticSymb = StatisticSymb()
         print("Reset Complete!")
         self.status = Status.Running
 
@@ -202,7 +206,7 @@ class SSP_Game:
 
             comp_pick = self.getComp(player_pick)
             
-
+            print(comp_pick)
             print("\nPLayer: ", SSP(player_pick).name)
             print("Computer: ", SSP(comp_pick).name)
             print()
@@ -218,9 +222,6 @@ class SSP_Game:
                 print("Draw!")
                 continue
 
-            
-
-
             if player_pick in SSP_Game.win[comp_pick]:
                 self.statisticRes.comp += 1
                 print("Computer won!")
@@ -233,13 +234,27 @@ class SSP_Game:
     
     def getComp(self, player_pick):
         if self.currDifficulty == 1:
-            draw = random.randrange(min, max+1)
+            return random.randrange(SSP_Game.min_ssp, SSP_Game.max_ssp+1)
         elif self.currDifficulty == 2:
-            print(self.statisticSymb.player_stat)
-        
-        return 1
+            dic = self.statisticSymb.player_stat
+            print(dic)
+            dic_max = max(dic, key=dic.get, default=-1)
+            if dic_max == -1:
+                return random.randrange(SSP_Game.min_ssp, SSP_Game.max_ssp+1)
+            else:
+                return SSP_Game.getWinningSymb(dic_max)
+        elif self.currDifficulty == 3:
+            return SSP_Game.getWinningSymb(player_pick)
 
-    
+        return SSP.Echse
+
+    def getWinningSymb(symb):
+        win_dic = SSP_Game.win
+        symb = SSP(symb)
+        if any(symb in (match := dic_list) for dic_list in SSP_Game.win.values()):
+            return list(win_dic.keys())[list(win_dic.values()).index(match)].value
+
+
     def processInput(self, msg='> '):
         text = input(msg)
         if self.commandHandler.runCommand(text) == 1:
