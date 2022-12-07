@@ -35,7 +35,7 @@ class SSP_Game:
         printCommand = Command(-1, self.printHelp, "Print Help", "-h")
         self.commandHandler.addCommand(printCommand)
 
-        statisticCommand = Command(-1, self.printStatistic, "Stop Game and print Statistic", "-s")
+        statisticCommand = Command(-1, self.printStatistic, "Stop Game and save Statistic", "-s")
         self.commandHandler.addCommand(statisticCommand)
 
         resetCommand = Command(-1, self.reset, "Resets current Statistic", "-r")
@@ -88,6 +88,7 @@ class SSP_Game:
         print()
     
     def printStatistic(self):
+        name = self.processInput('Username: ')
         stat_res = vars(self.statisticRes)
         draws = sorted(stat_res, key=stat_res.get, reverse=True)
         summ = 0
@@ -116,6 +117,8 @@ class SSP_Game:
         print()
         print(tabulate(data_symb, headers=['Symbol', 'Count', 'Percentage (%)']))
         print()
+
+        #TODO: request to server
 
 
     def play(self):

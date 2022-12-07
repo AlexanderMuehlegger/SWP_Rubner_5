@@ -85,10 +85,10 @@ def main():
     
     abteilung = Abteilung("Wirtschaft", "Wirtschafting in se unternehmen", personen)
 
-    abteilung = Buchhaltung("Buchhaltung", "Haltung des Buches", personen=[Person('Buchhalter')])
+    abteilung1 = Buchhaltung("Buchhaltung", "Haltung des Buches", personen=[Person('Buchhalter', Abteilung, Geschlecht.Male)])
 
 
-    firma = Firma("Nimmersatt", personen=personen, abteilungen=[abteilung])
+    firma = Firma("Nimmersatt", personen=personen, abteilungen=[abteilung, abteilung1])
 
     print(f"Anzahl Abteilung: {firma.getAnzAbteilungen()}")
     print(f"Anzahl Gruppenleiter: {firma.getAnzGruppenleiter()}")
