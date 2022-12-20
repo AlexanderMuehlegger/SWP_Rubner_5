@@ -1,101 +1,90 @@
 from enum import Enum
 
-class Geschlecht(Enum):
+class Gender(Enum):
     Male = 1
     Female = 2
 
-class Firma:
-    def __init__(self, name, mitarbeiter=[], abteilungen=[], personen=[], gruppenleiter=[]):
+class Person():
+    def __init__(self, name, gender):
         self.name = name
-        self.mitarbeiter = mitarbeiter
-        self.abteilungen = abteilungen
-        self.personen = personen
-        self.gruppenleiter = gruppenleiter
-    
-    def getAnzMitarbeiter(self):
-        return len(self.mitarbeiter)
-    
-    def getAnzGruppenleiter(self):
-        return len(self.gruppenleiter)
-    
-    def getAnzAbteilungen(self):
-        return len(self.abteilungen)
-    
-    def getAnzPersonen(self):
-        return len(self.personen)
+        self.gender = gender
 
-    def printAbteilungen(self):
-        for x in self.abteilungen:
-            print(f"{x.name} - {x.description}")
-    
-    def getStrongestAbteilung(self):
-        abt = self.abteilungen
-        return max(abt)
-
-class Person:
-    def __init__(self, name, abteilung, geschlecht):
-        self.name = name
-        self.abteilung = abteilung
-        self.geschlecht = geschlecht
 
 class Mitarbeiter(Person):
-    def __init__(self, name, abteilung, geschlecht, gehalt):
-        super().__init__(name, abteilung, geschlecht)
-        self.gehalt = gehalt       
+    def __init__(self, name, gender, firma):
+        super().__init__(name, gender)
+        self.firma = firma
+
 
 class Gruppenleiter(Mitarbeiter):
-    def __init__(self, name, abteilung, geschlecht, gehalt, gruppe):
-        super().__init__(name, abteilung, geschlecht, gehalt)
-        self.gruppe = gruppe
+    def __init__(self, name, gender, firma):
+        super().__init__(name, gender, firma)
 
-class Abteilung:
-    def __init__(self, name, description, personen=[]):
+
+class Firma():
+    def __init__(self, name):
         self.name = name
-        self.description = description
-        self.personen = personen
-    
-    def addPerson(self, person):
-        self.personen.append(person)
-    
-    def run(self):
-        print("Machen Abteilungs Zeug")
+        self.abteilungen = []
 
-    def __str__(self):
-        return f"{self.name} - {self.description} - Personen Anz.: {len(self.personen)}"
+    def compare_men_women(self):
+        anz_male = 0
+        anz_female = 0
+        for abteilung in self.abteilungen:
+            for mitarbeiter in abteilung.mitarbeiter:
+                if mitarbeiter.gender == Gender.Female:
+                    anz_female += 1
+                    continue
+                anz_male += 1
 
-class Buchhaltung(Abteilung):
-    def __init__(self, name, description, personen=[]):
-        super().__init__(name, description, personen)
+            for gruppenleiter in abteilung.gruppenleiter:
+                if gruppenleiter.gender == "women":
+                    anz_female += 1
+                    continue
+                anz_male += 1
+        return {Gender.Male.name: anz_male, Gender.Female.name: anz_female}
 
-    def run(self):
-        print("Buchhalten...")
+    def anz_abteilung(self):
+        return len(self.abteilungen)
 
+    def anz_mitarbeiter(self):
+        count = 0
+        for abteilung in self.abteilungen:
+            count += len(abteilung.mitarbeiter)
+        return count
 
-class Produktion(Abteilung):
-    def __init__(self, name, description, personen=[]):
-        super().__init__(name, description, personen)   
+    def anz_gruppenleiter(self):
+        count = 0
+        for abteilung in self.abteilungen:
+            count+= len(abteilung.gruppenleiter)
+        return count
 
-    def run(self):
-        print("Herstellen v. Produkt")
+    def get_biggest_abteilung(self):
+        biggest_abteilung = self.abteilungen[0]
+        for abteilung in self.abteilungen:
+            if len(abteilung.mitarbeiter) > len(biggest_abteilung.mitarbeiter):
+                biggest_abteilung = abteilung
+        return biggest_abteilung
+
+class Abteilung():
+    def __init__(self, name, gruppenleiter):
+        self.name = name
+        self.gruppenleiter = []
+        self.gruppenleiter.append(gruppenleiter)
+        self.mitarbeiter = []
+
 
 def main():
-    personen = []
-    for i in range(5):
-        personen.append(Person(f'Person{i}', Abteilung, Geschlecht.Male))
+    firma = Firma("Gucci")
+    abteilung = Abteilung("GucciWerbung", Gruppenleiter("AV", Gender.Male, firma))
+    firma.abteilungen.append(abteilung)
+    abteilung2 = Abteilung("GucciProduktion", Gruppenleiter("AV", Gender.Male, firma))
+    firma.abteilungen.append(abteilung2)
+
+    abteilung.gruppenleiter.append(Mitarbeiter("Boss", Gender.Male, firma))
+    abteilung.mitarbeiter.append(Mitarbeiter("nedsoboss", Gender.Male, firma))
+    abteilung.mitarbeiter.append(Mitarbeiter("nedsoboss", Gender.Male, firma))
+    abteilung.mitarbeiter.append(Mitarbeiter("nedsoboss", Gender.Male, firma))
     
-    abteilung = Abteilung("Wirtschaft", "Wirtschafting in se unternehmen", personen)
-
-    abteilung1 = Buchhaltung("Buchhaltung", "Haltung des Buches", personen=[Person('Buchhalter', Abteilung, Geschlecht.Male)])
-
-
-    firma = Firma("Nimmersatt", personen=personen, abteilungen=[abteilung, abteilung1])
-
-    print(f"Anzahl Abteilung: {firma.getAnzAbteilungen()}")
-    print(f"Anzahl Gruppenleiter: {firma.getAnzGruppenleiter()}")
-    print(f"Anzahl Mitarbeiter: {firma.getAnzMitarbeiter()}")
-    print(f"Anzahl Personen: {firma.getAnzPersonen()}")
-    firma.printAbteilungen()
-    print(firma.getStrongestAbteilung().__str__())
     
 
 if __name__ == "__main__":

@@ -3,8 +3,9 @@ import random
 import quotes
 from enums import SSP, Error, Status
 from commands import Command, CommandHandler
-from statistics import StatisticRes, StatisticSymb
+from statistics_1 import StatisticRes, StatisticSymb
 from terminal import Log
+import requests
 
 class SSP_Game:
 
@@ -15,6 +16,8 @@ class SSP_Game:
         SSP.Echse: [SSP.Spock, SSP.Papier],
         SSP.Spock: [SSP.Schere, SSP.Stein]
     }
+
+    server_url = "http://127.0.0.1:5000/api/"
 
     min_ssp = 1
     max_ssp = 5
@@ -88,6 +91,7 @@ class SSP_Game:
         print()
     
     def printStatistic(self):
+        #TODO: save statistic and reset game
         name = self.processInput('Username: ')
         stat_res = vars(self.statisticRes)
         draws = sorted(stat_res, key=stat_res.get, reverse=True)
@@ -118,7 +122,25 @@ class SSP_Game:
         print(tabulate(data_symb, headers=['Symbol', 'Count', 'Percentage (%)']))
         print()
 
-        #TODO: request to server
+        result = requests.post(SSP_Game.server_url + "saveStatistic", data={
+            "username": name,
+            "statistics": {
+                "Schere": self.statisticSymb.player_stat.get(SSP.Schere, 0),
+                "Stein": self.statisticSymb.player_stat.get(SSP.Stein, 0),
+                "Papier": self.statisticSymb.player_stat.get(SSP.Papier, 0),
+                "Echse": self.statisticSymb.player_stat.get(SSP.Echse, 0),
+                "Spock": self.statisticSymb.player_stat.get(SSP.Spock, 0),
+            },
+            "result": {
+                "Computer": self.statisticRes.comp,
+                "Player": self.statisticRes.player,
+                "Draw": self.statisticRes.draw
+            }
+        })
+
+        #TODO: Response handling
+
+        print(result.text)
 
 
     def play(self):
@@ -182,6 +204,7 @@ class SSP_Game:
         if self.currDifficulty == 1:
             return random.randrange(SSP_Game.min_ssp, SSP_Game.max_ssp+1)
         elif self.currDifficulty == 2:
+            #TODO: implement propability calculation
             dic = self.statisticSymb.player_stat
             print(dic)
             dic_max = max(dic, key=dic.get, default=-1)

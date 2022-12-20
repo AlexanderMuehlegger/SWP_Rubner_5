@@ -1,23 +1,33 @@
 from flask import Flask, request
 import json
+import sqlite3
 
 app = Flask(__name__)
-
-with open('saved_statistic.json') as json_file:
-    stat_data = json.loads(json_file)
-
-print(stat_data)
+db_string = "Statistic.db"
 
 @app.route('/api/saveStatistic', methods=['POST'])
 def saveStatistic():
-    statistic = request.data
-    data = json.loads(statistic)
-    print(data)    
-
+    data = request.get_data().decode("UTF-8")
+    #TODO: finish insert into db
+    #TODO: add response
+    with sqlite3.connect(db_string) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM Statistic WHERE username=?", [data['username']])
+        if cur.fetchall() is 0:
+            cur.execute("INSERT INTO Statistic (id, username, symbol_anz) VALUES (NULL, ?, ?);", [])
     return {'Response': 'OK'}
 
 @app.route('/api/getStatistics', methods=["GET"])
 def getStatistics():
-    return "kdkdk"
+    with sqlite3.connect(db_string) as conn:
+        cur = conn.cursor()
+        result = cur.execute("SELECT * FROM Statistic")
+        data = result.fetchall()
 
-app.run()
+        return json.dumps(data)
+
+#TODO: add website for data output
+
+
+if __name__ == "__main__":
+    app.run()
