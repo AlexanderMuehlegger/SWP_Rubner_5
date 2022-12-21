@@ -1,0 +1,18 @@
+programmiere in Python:
+
+- eine Firma
+- Es gibt Personen, Mitarbeiter, Gruppenleiter
+- Es gibt mehrere Abteilungen, jede Person ist in einer Abteilung
+- Es gibt beide Geschlechter
+
+- modelliere die Objekte über Vererbung
+- erzeuge zum Schluss ein Firmenobjekt
+
+ biete folgende Methoden an:
+ - man muss alle Objekte instanzieren können
+ - wieviele Mitarbeiter, Gruppenleiter gibts in der Firma
+ - wieviel Abteilungen gibt es
+ - welche Abteilung hat die größte Mitarbeiterstärke
+ - wie ist der Prozentanteil Frauen Männer
+
+Maximiere die Logik-Kapselung...Methoden und Datenstrukturen sollten in den passenden Klassen implementiert werden.

@@ -10,8 +10,6 @@ def saveStatistic():
     
     try:
         data = request.get_json(force=True)
-        #TODO: finish insert into db
-        #TODO: add response
         print(data)
         with sqlite3.connect(db_string) as conn:
             cur = conn.cursor()
@@ -33,7 +31,6 @@ def getStatistics():
 
         return json.dumps(data)
 
-#TODO: add website for data output
 
 
 if __name__ == "__main__":

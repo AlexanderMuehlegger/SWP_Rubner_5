@@ -7,6 +7,9 @@ from statistics_1 import StatisticRes, StatisticSymb
 from terminal import Log
 import requests
 import json
+from rich.console import Console
+from rich.progress import track
+import time
 
 class SSP_Game:
 
@@ -22,8 +25,10 @@ class SSP_Game:
 
     min_ssp = 1
     max_ssp = 5
+    console = Console()
 
     def __init__(self):
+        
         self.status = Status.Stopped
         self.init()
 
@@ -39,8 +44,11 @@ class SSP_Game:
         printCommand = Command(-1, self.printHelp, "Print Help", "-h")
         self.commandHandler.addCommand(printCommand)
 
-        statisticCommand = Command(-1, self.printStatistic, "Stop Game and save Statistic", "-s")
+        statisticCommand = Command(-1, self.printStatistic, "Print current statistic", "-p")
         self.commandHandler.addCommand(statisticCommand)
+
+        saveStatisticCommand = Command(-1, self.saveStatistic, "Saves and resets current statistic", "-s")
+        self.commandHandler.addCommand(saveStatisticCommand)
 
         resetCommand = Command(-1, self.reset, "Resets current Statistic", "-r")
         self.commandHandler.addCommand(resetCommand)
@@ -48,6 +56,8 @@ class SSP_Game:
         difficultyCommand = Command(-1, self.setDifficulty, "Sets new Difficulty", "-d")
         self.commandHandler.addCommand(difficultyCommand)
         
+        printSymbolCommand = Command(-1, self.printSymb, "Prints numbers of Symbols", "-symb")
+        self.commandHandler.addCommand(printSymbolCommand)
     
 
     def start(self):
@@ -81,7 +91,7 @@ class SSP_Game:
         print("Schere, Stein, Papier, Spock, Echse".center(50, " "))
         print("See all commands with -h".center(50, " "))
         print("".ljust(50, "-"))
-        SSP.__str__()
+        self.printSymb()
 
     def printHelp(self):
         print()
@@ -91,9 +101,10 @@ class SSP_Game:
         print(tabulate(toprint, headers=['Command', 'Description']))
         print()
     
+    def printSymb(self):
+        SSP.__str__()
+
     def printStatistic(self):
-        #TODO: save statistic and reset game
-        name = self.processInput('Username: ', noNum=True)
         stat_res = vars(self.statisticRes)
         draws = sorted(stat_res, key=stat_res.get, reverse=True)
         summ = 0
@@ -123,6 +134,10 @@ class SSP_Game:
         print(tabulate(data_symb, headers=['Symbol', 'Count', 'Percentage (%)']))
         print()
 
+        
+
+    def saveStatistic(self):
+        name = self.processInput('Username: ', noNum=True)
         data = {
             "username": str(name),
             "statistics": {
@@ -139,10 +154,25 @@ class SSP_Game:
             }
         }
         json_data = json.dumps(data)
-        result = requests.post(SSP_Game.server_url + "saveStatistic", data=json_data)
-       
-        self.reset()
+        result = ""
+        try:
+            result = requests.post(SSP_Game.server_url + "saveStatistic", data=json_data)
+        except:
+            with SSP_Game.console.status("[bold yellow]Connecting to Server...", spinner='line') as status:
+                for i in range(10):
+                    time.sleep(.6)
+            SSP_Game.console.print(":x: [red]Connection to server failed!")    
+            return
 
+        
+        for i in track(range(10), description="Saving..."):
+            time.sleep(.5)
+        result = result.json()
+        if 'ERROR' in result:
+            SSP_Game.console.print(":x: [red] Something went wrong turing saving!")
+        elif 'Response' in result:
+            SSP_Game.console.print(':white_check_mark: [green] Data saved successfully!')
+        self.reset()
 
     def play(self):
         max = self.max_ssp
@@ -205,14 +235,37 @@ class SSP_Game:
         if self.currDifficulty == 1:
             return random.randrange(SSP_Game.min_ssp, SSP_Game.max_ssp+1)
         elif self.currDifficulty == 2:
-            #TODO: implement propability calculation
-            dic = self.statisticSymb.player_stat
-            print(dic)
-            dic_max = max(dic, key=dic.get, default=-1)
-            if dic_max == -1:
+            
+            dic = self.statisticSymb.player_stat.copy()
+
+            if not dic:
                 return random.randrange(SSP_Game.min_ssp, SSP_Game.max_ssp+1)
-            else:
-                return SSP_Game.getWinningSymb(dic_max)
+
+            max_symb = self.statisticSymb.getPlayer_stat_count()
+            dic_max = []
+            for i in range(3):
+                dic_max.append(max(dic, key=dic.get, default=-1))
+                if -1 == dic_max[-1]:
+                    del dic_max[-1]
+                    continue
+                else:
+                    if dic_max[-1] != -1:
+                        del dic[dic_max[-1]]
+
+            prop_win = []
+            dic = self.statisticSymb.player_stat.copy()
+
+            for i in dic_max:
+                prop_win.append(SSP_Game.getWinningSymb(i))
+            
+            rngNum = random.uniform(0, 1)
+            
+            for i in range(len(dic_max)):
+                if dic[dic_max[i]]/max_symb <= rngNum:
+                    return SSP_Game.getWinningSymb(prop_win[i])
+
+            return prop_win[0]
+            
         elif self.currDifficulty == 3:
             return SSP_Game.getWinningSymb(player_pick)
 
@@ -241,8 +294,10 @@ class SSP_Game:
 
 
 def main():
+    console = Console()
     game = SSP_Game()
     game.start()
+
 
 if __name__ == "__main__":
     main()

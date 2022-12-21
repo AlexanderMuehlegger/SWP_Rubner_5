@@ -1,13 +1,17 @@
 class StatisticRes: #Result
     def __init__(self):
-        self.draw = 1
-        self.player = 1
-        self.comp = 1
+        self.draw = 0
+        self.player = 0
+        self.comp = 0
 
 class StatisticSymb:
     def __init__(self):
         self.player_stat = {}
         self.comp_stat = {}
+        self.init()
+    
+    def init(self):
+        self.player_stat
     
     def getFullStat(self):
         stat = {}
@@ -19,3 +23,9 @@ class StatisticSymb:
             stat[x] = self.player_stat.get(x, 0) +  self.player_stat[x]
 
         return stat
+
+    def getPlayer_stat_count(self):
+        _sum = 0
+        for i in self.player_stat.keys():
+            _sum += self.player_stat.get(i, 0)
+        return _sum
