@@ -6,6 +6,7 @@ from commands import Command, CommandHandler
 from statistics_1 import StatisticRes, StatisticSymb
 from terminal import Log
 import requests
+import json
 
 class SSP_Game:
 
@@ -92,7 +93,7 @@ class SSP_Game:
     
     def printStatistic(self):
         #TODO: save statistic and reset game
-        name = self.processInput('Username: ')
+        name = self.processInput('Username: ', noNum=True)
         stat_res = vars(self.statisticRes)
         draws = sorted(stat_res, key=stat_res.get, reverse=True)
         summ = 0
@@ -122,8 +123,8 @@ class SSP_Game:
         print(tabulate(data_symb, headers=['Symbol', 'Count', 'Percentage (%)']))
         print()
 
-        result = requests.post(SSP_Game.server_url + "saveStatistic", data={
-            "username": name,
+        data = {
+            "username": str(name),
             "statistics": {
                 "Schere": self.statisticSymb.player_stat.get(SSP.Schere, 0),
                 "Stein": self.statisticSymb.player_stat.get(SSP.Stein, 0),
@@ -136,11 +137,11 @@ class SSP_Game:
                 "Player": self.statisticRes.player,
                 "Draw": self.statisticRes.draw
             }
-        })
-
-        #TODO: Response handling
-
-        print(result.text)
+        }
+        json_data = json.dumps(data)
+        result = requests.post(SSP_Game.server_url + "saveStatistic", data=json_data)
+       
+        self.reset()
 
 
     def play(self):
@@ -224,11 +225,14 @@ class SSP_Game:
             return list(win_dic.keys())[list(win_dic.values()).index(match)].value
 
 
-    def processInput(self, msg='> '):
+    def processInput(self, msg='> ', noNum=False):
         text = input(msg)
         if self.commandHandler.runCommand(text) == 1:
             return ""
-            
+        
+        if noNum:
+            return text
+
         try:
             text = int(text)
         except:

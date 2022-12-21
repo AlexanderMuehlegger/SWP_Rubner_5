@@ -7,15 +7,22 @@ db_string = "Statistic.db"
 
 @app.route('/api/saveStatistic', methods=['POST'])
 def saveStatistic():
-    data = request.get_data().decode("UTF-8")
-    #TODO: finish insert into db
-    #TODO: add response
-    with sqlite3.connect(db_string) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM Statistic WHERE username=?", [data['username']])
-        if cur.fetchall() is 0:
-            cur.execute("INSERT INTO Statistic (id, username, symbol_anz) VALUES (NULL, ?, ?);", [])
-    return {'Response': 'OK'}
+    
+    try:
+        data = request.get_json(force=True)
+        #TODO: finish insert into db
+        #TODO: add response
+        print(data)
+        with sqlite3.connect(db_string) as conn:
+            cur = conn.cursor()
+            
+            cur.execute("INSERT INTO Statistic (id, username, symbol_anz, result) VALUES (NULL, ?, ?, ?);", [data['username'], str(data['statistics']), str(data['result'])])
+            
+            return {'Response': 'Data inserted!'}
+    except Exception as e:
+        print(e)
+        return {'Error': 'Something went wrong turing insert!'}
+        
 
 @app.route('/api/getStatistics', methods=["GET"])
 def getStatistics():
