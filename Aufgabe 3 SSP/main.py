@@ -10,6 +10,7 @@ import json
 from rich.console import Console
 from rich.progress import track
 import time
+import threading
 
 class SSP_Game:
 
@@ -58,7 +59,9 @@ class SSP_Game:
         
         printSymbolCommand = Command(-1, self.printSymb, "Prints numbers of Symbols", "-symb")
         self.commandHandler.addCommand(printSymbolCommand)
-    
+
+        searchDataCommand = Command(-1, self.searchPlayerStat, "Get data from player by name", "-pstat")
+        self.commandHandler.addCommand(searchDataCommand)
 
     def start(self):
         self.printInfo()
@@ -77,6 +80,70 @@ class SSP_Game:
                     Log.e("Number out of bounds!")
             else:
                 Log.e("Only Numbers are allowed!")
+
+    def searchPlayerStat(self):
+        failed = False
+        name = self.processInput("Username: ", noNum=True)
+        loadingThread = threading.Thread(target=self.startConnectionThread)
+        loadingThread.start()
+
+        try:
+            result = requests.get(SSP_Game.server_url + "getPlayerStat/" + name)
+        except:
+            failed = True
+
+        while loadingThread.is_alive():
+            pass
+
+        if failed:
+            SSP_Game.console.print(":x: [red]Connection to Server failed!")
+            return
+
+        result = result.json()
+
+        if 'ERROR' in result:
+            SSP_Game.console.print(":x: [red]Couldn't find player")
+            return
+        
+        data_dict = []
+        for i in result:
+            for j in i:
+                data_dict.append(j)
+
+        for i in data_dict:
+            dict_ = json.loads(i)
+            symbol = StatisticSymb()
+            symbol.player_stat = json.loads(dict_["symbol_anz"].replace("'", "\""))
+            result_ = json.loads(dict_['result'].replace("'", "\""))
+
+            summ = 0
+
+            for x in result_:
+                summ += result_[x]
+
+            if summ == 0:
+                return
+
+            data_res = []
+            
+            for x in result_:
+                data_res.append([x, result_[x], round(result_[x]/summ*100, 2)])
+            
+            data_symb = []
+
+            for x in symbol.player_stat:
+                data_symb.append([x, symbol.player_stat[x], round(symbol.player_stat[x]/summ*100, 2)]) #
+           
+            print()
+            SSP_Game.console.print("[bold]id: {0}".format(dict_["id"]))
+            
+            print()
+            print(tabulate(data_res, headers=['Outcome', 'Count', 'Procentage (%)']))
+            print()
+
+            print()
+            print(tabulate(data_symb, headers=['Symbol', 'Count', 'Percentage (%)']))
+            print()
 
     def reset(self):
         self.status = Status.Paused
@@ -113,6 +180,7 @@ class SSP_Game:
             summ += stat_res[x]
 
         if summ == 0:
+            SSP_Game.console.print(":x: [red]No Data available yet!")
             return
 
         data_res = []
@@ -122,6 +190,10 @@ class SSP_Game:
         
         data_symb = []
         stat_symb = self.statisticSymb.getFullStat()
+
+        summ = 0
+        for i in stat_symb:
+            summ += stat_symb[i]
 
         for x in stat_symb:
             data_symb.append([x.name, stat_symb[x], round(stat_symb[x]/summ*100, 2)]) #
@@ -155,15 +227,20 @@ class SSP_Game:
         }
         json_data = json.dumps(data)
         result = ""
+        thread = threading.Thread(target=self.startConnectionThread)
+        thread.start()
+        failed = False
         try:
             result = requests.post(SSP_Game.server_url + "saveStatistic", data=json_data)
         except:
-            with SSP_Game.console.status("[bold yellow]Connecting to Server...", spinner='line') as status:
-                for i in range(10):
-                    time.sleep(.6)
-            SSP_Game.console.print(":x: [red]Connection to server failed!")    
-            return
+            failed = True
 
+        while thread.is_alive():
+            pass
+
+        if failed:
+            SSP_Game.console.print(":x: [red]Connection to server failed!")
+            return    
         
         for i in track(range(10), description="Saving..."):
             time.sleep(.5)
@@ -202,7 +279,6 @@ class SSP_Game:
 
             comp_pick = self.getComp(player_pick)
             
-            print(comp_pick)
             print("\nPLayer: ", SSP(player_pick).name)
             print("Computer: ", SSP(comp_pick).name)
             print()
@@ -212,7 +288,8 @@ class SSP_Game:
 
             self.statisticSymb.player_stat[player_pick] = self.statisticSymb.player_stat.get(player_pick, 0) + 1
             self.statisticSymb.comp_stat[comp_pick] = self.statisticSymb.comp_stat.get(comp_pick, 0) + 1
-            
+
+
             if comp_pick == player_pick:
                 self.statisticRes.draw += 1
                 print("Draw!")
@@ -231,6 +308,11 @@ class SSP_Game:
                 print("Player won!")
                 continue
     
+    def startConnectionThread(self):
+        with SSP_Game.console.status("[bold yellow]Connecting to Server...", spinner='line') as status:
+                for i in range(10):
+                    time.sleep(.5)
+
     def getComp(self, player_pick):
         if self.currDifficulty == 1:
             return random.randrange(SSP_Game.min_ssp, SSP_Game.max_ssp+1)

@@ -22,7 +22,19 @@ def saveStatistic():
         return {'Error': 'Something went wrong turing insert!'}
         
 
-@app.route('/api/getStatistics', methods=["GET"])
+@app.route('/api/getPlayerStat/<username>', methods=['GET'])
+def getPlayerStat(username):
+    if username == "":
+        return {'ERROR': 'No username Entered'}
+    with sqlite3.connect(db_string) as conn:
+        cur = conn.cursor()
+        result = cur.execute("SELECT json_object('id', id, 'username',username, 'symbol_anz', symbol_anz, 'result', result) FROM Statistic WHERE username=?", [username])
+        result = result.fetchall()
+        if(result != []):
+            return json.dumps(result)
+    return {'ERROR': 'Something went wrong!'}
+
+@app.route('/api/getStatistics  ', methods=["GET"])
 def getStatistics():
     with sqlite3.connect(db_string) as conn:
         cur = conn.cursor()

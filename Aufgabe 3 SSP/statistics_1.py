@@ -20,7 +20,7 @@ class StatisticSymb:
             stat[x] = self.comp_stat[x]
         
         for x in self.player_stat:
-            stat[x] = self.player_stat.get(x, 0) +  self.player_stat[x]
+            stat[x] = self.player_stat.get(x, 0)
 
         return stat
 

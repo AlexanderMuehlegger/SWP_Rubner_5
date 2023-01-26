@@ -1,0 +1,36 @@
+Date : 2023-01-11 16:37:39
+Directory : c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP
+Total : 10 files,  459 codes, 0 comments, 131 blanks, all 590 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Python   |          7 |        430 |          0 |        130 |        560 |
+| Database |          1 |         17 |          0 |          0 |         17 |
+| JSON     |          2 |         12 |          0 |          1 |         13 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                          | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                             |         10 |        459 |          0 |        131 |        590 |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                      | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\Statistic.db         | Database |         17 |          0 |          0 |         17 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\commands.py          | Python   |         30 |          0 |          9 |         39 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\enums.py             | Python   |         21 |          0 |          5 |         26 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\main.py              | Python   |        295 |          0 |         90 |        385 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\quotes.json          | JSON     |          8 |          0 |          0 |          8 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\quotes.py            | Python   |          6 |          0 |          2 |          8 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\saved_statistic.json | JSON     |          4 |          0 |          1 |          5 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\server.py            | Python   |         37 |          0 |         12 |         49 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\statistics_1.py      | Python   |         24 |          0 |          8 |         32 |
+| c:\Users\alexa\OneDrive\Dokumente\Schule\5BHWII\SWP\Rubner\Aufgabe 3 SSP\terminal.py          | Python   |         17 |          0 |          4 |         21 |
+| Total                                                                                         |          |        459 |          0 |        131 |        590 |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
