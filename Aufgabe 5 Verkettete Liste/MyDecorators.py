@@ -33,11 +33,14 @@ def delete_element(func):
 def print_list(func):
     def wrapper(*args, **kwargs):
         start_el = func(*args, **kwargs)
+        toReturn = []
         while(start_el.getNext() != None):
             if start_el.getObj() != 'Head':
-                print(start_el.getObj())
+                toReturn.append(start_el.getObj())
             start_el = start_el.getNext()
-        print(start_el.getObj())
+        if(start_el.getObj() != 'Head'):
+            toReturn.append(start_el.getObj())
+        return str(toReturn)
         
     return wrapper
 
@@ -58,7 +61,9 @@ def find_element(mode):
         def wrapper(*args, **kwargs):
             node = func(*args, **kwargs)
             index = 0
-            while(node.getNext() != None):
+            if(mode=='GetObj' and args[1] > args[0].length):
+                return IndexError("Out of Bounds")
+            while(node.getNext() != None or node.getNext() == None and mode == 'GetObj'):
                 if(node.getObj() == 'Head'):
                     node = node.getNext()
                     continue
@@ -69,7 +74,7 @@ def find_element(mode):
                     return True if (mode == 'NoIndex') else index
                 node = node.getNext()
                 index += 1
-            return False if (mode == 'NoIndex') else index
+            return False if (mode == 'NoIndex') else index if (mode != 'GetObj') else 'Couldnt find Object'
         return wrapper
     return find_element_dec
 
@@ -78,3 +83,5 @@ def clear(func):
         args[0].length = 0
         args[0].startNode.setNext(None)
     return wrapper 
+
+

@@ -1,30 +1,38 @@
-from MyList import VerketteteListe
 def main():
+    from MyList import VerketteteListe
     myList = VerketteteListe()
     print(myList.add("Hallo1"))
     print(myList.add("Hallo2"))
     print(myList.add("Hallo3"))
     print(myList.add("Hallo4"))
+    print(myList.add("Hallo4"))
+    print(myList.add("Hallo4"))
+    print(myList.add("Hallo4"))
     print(myList.add("Hallo5"))
+    
+    print(myList)
 
-    print()
+    print(myList[1])
 
+    myList = myList.shuffle()
+    
+    print("===============================")
     # myList.clear()
-    print(myList.getObjByIndex(1))
     print(myList.insert("Hallo3", "Hallo3-"))
 
     print()
 
     print("Length: " + str(myList.length))
 
-    myList.printList()
+    print(myList)
     print("----------------------")
 
     print(myList.delete("Hallo3-"))
+    print(myList.remove("Hallo4"))
 
     print("-----------------------")
 
-    myList.printList()
+    print(myList)
 
     print(myList.contains("Hallo3"))
     print(myList.indexOf("Hallo2"))

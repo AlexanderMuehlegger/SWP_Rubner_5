@@ -1,3 +1,4 @@
+import random
 class Node:
     obj = None
     next = None
@@ -17,10 +18,12 @@ class Node:
     
 class VerketteteListe():
     from MyDecorators import add_element, delete_element, last_element, print_list, insert_element, find_element, clear
-
     def __init__(self):
         self.startNode = Node('Head')
         self.length = 0
+    
+    def setStartNode(self, node):
+        self.startNode = node
 
     @add_element
     def add(self, obj):
@@ -37,7 +40,7 @@ class VerketteteListe():
         return self.startNode
     
     @print_list
-    def printList(self):
+    def __str__(self):
         return self.startNode
 
     @insert_element
@@ -57,12 +60,45 @@ class VerketteteListe():
     def clear(self):
         return self.startNode
 
+    def shuffle(self):
+        indexes = list(range(self.length))
+        random.shuffle(indexes)
+        new_list = VerketteteListe()
+        for i in indexes:
+            new_list.add(self[i])
+        return new_list
+    
+    def remove(self, value):
+        prev_node = self.startNode
+        now_node = self.startNode
+        while(now_node != None):
+            if(now_node.getObj() == value):
+                prev_node.setNext(now_node.getNext())
+                now_node = now_node.getNext()
+                continue
+            else:
+                prev_node = now_node
+                now_node = now_node.getNext()
+
+    def middle(self, head):
+        if(head == None):
+            return None
+        
+        slow = head
+        fast = head
+
+        while(fast.getNext() != None and fast.getNext().getNext() != None):
+            slow = slow.getNext()
+            fast = fast.getNext().getNext()
+
+        return slow
+
     @find_element(mode='GetObj')
-    def getObjByIndex(self, index):
+    def __getitem__(self, index):
         return self.startNode
 
 
-    def getLength(self):
+    def __len__(self):
         return self.length
 
 
