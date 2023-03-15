@@ -61,7 +61,7 @@ def find_element(mode):
         def wrapper(*args, **kwargs):
             node = func(*args, **kwargs)
             index = 0
-            if(mode=='GetObj' and args[1] > args[0].length):
+            if(mode=='GetObj' and args[1] > len(args[0])):
                 return IndexError("Out of Bounds")
             while(node.getNext() != None or node.getNext() == None and mode == 'GetObj'):
                 if(node.getObj() == 'Head'):
@@ -80,7 +80,6 @@ def find_element(mode):
 
 def clear(func):
     def wrapper(*args, **kwargs):
-        args[0].length = 0
         args[0].startNode.setNext(None)
     return wrapper 
 

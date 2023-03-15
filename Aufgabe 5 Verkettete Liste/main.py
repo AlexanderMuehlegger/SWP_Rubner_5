@@ -22,7 +22,7 @@ def main():
 
     print()
 
-    print("Length: " + str(myList.length))
+    print("Length: " + str(len(myList)))
 
     print(myList)
     print("----------------------")
@@ -37,7 +37,7 @@ def main():
     print(myList.contains("Hallo3"))
     print(myList.indexOf("Hallo2"))
 
-    print("Length: " + str(myList.length))
+    print("Length: " + str(len(myList)))
 
     print(myList.getLastNode().getObj())
 

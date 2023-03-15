@@ -1,9 +1,9 @@
 from MyList import VerketteteListe, Node
 
 class DopNode(Node):
-    def __init__(self, obj, last):
-        super(obj)
-        self.last = last
+    def __init__(self, obj):
+        super(DopNode, self).__init__(obj)
+        self.last = None
     
     def getLast(self):
         return self.last
@@ -11,14 +11,19 @@ class DopNode(Node):
 
 class DoppeltVerketteteListe(VerketteteListe):
     def __init__(self):
-        super()
-        self.lastNode = Node('Head')
+        super(DoppeltVerketteteListe, self).__init__()
+        self.startNode = DopNode('Head')
 
     def add(self, obj):
-        self.length += 1
-        newNode = DopNode(obj, self.lastNode)
-        self.lastNode.setNext(newNode) 
+        newNode = DopNode(obj)
+        
+        last_node = self.startNode
+        while last_node.next != None:
+            last_node = last_node.next
+        
+        newNode.last = last_node
+
+        last_node.next = newNode
 
     def getLastNode(self):
         return self.lastNode
-    

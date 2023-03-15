@@ -20,19 +20,16 @@ class VerketteteListe():
     from MyDecorators import add_element, delete_element, last_element, print_list, insert_element, find_element, clear
     def __init__(self):
         self.startNode = Node('Head')
-        self.length = 0
     
     def setStartNode(self, node):
         self.startNode = node
 
     @add_element
     def add(self, obj):
-        self.length += 1
         return Node(obj)
 
     @delete_element
     def delete(self, obj):
-        self.length -= 1
         return self.startNode
     
     @last_element
@@ -45,7 +42,6 @@ class VerketteteListe():
 
     @insert_element
     def insert(self, after, obj):
-        self.length += 1
         return self.startNode, Node(obj)
     
     @find_element(mode='NoIndex')
@@ -61,7 +57,7 @@ class VerketteteListe():
         return self.startNode
 
     def shuffle(self):
-        indexes = list(range(self.length))
+        indexes = list(range(len(self)))
         random.shuffle(indexes)
         new_list = VerketteteListe()
         for i in indexes:
@@ -80,25 +76,17 @@ class VerketteteListe():
                 prev_node = now_node
                 now_node = now_node.getNext()
 
-    def middle(self, head):
-        if(head == None):
-            return None
-        
-        slow = head
-        fast = head
-
-        while(fast.getNext() != None and fast.getNext().getNext() != None):
-            slow = slow.getNext()
-            fast = fast.getNext().getNext()
-
-        return slow
-
     @find_element(mode='GetObj')
     def __getitem__(self, index):
         return self.startNode
 
 
     def __len__(self):
-        return self.length
+        head = self.startNode
+        length = 0
+        while head.getNext() is not None:
+            length += 1
+            head = head.getNext()
+        return length
 
 
