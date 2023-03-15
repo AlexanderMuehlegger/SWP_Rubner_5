@@ -5,19 +5,26 @@ class ArrayList():
 
     def append(self, obj):
         def wrapper():
-            for i in range(len(self)):
-                if self.array[i] != None:
-                    continue
 
-                self.array[i] = obj
-                return True
+            if len(self) == 0:
+                self.array[0] = obj
+                return
+
+            for i in range(0, len(self)+1, 1):
+                try:
+                    if self.array[i] == None:
+                        self.array[i] = obj
+                        return True
+                except IndexError:
+                    pass
             return False     
-        
-        if wrapper() == False:
-            self.array + ([None]*10)
+        result = wrapper()
+        if result == False:
+            self.array = self.array + ([None]*10)
             self.append(obj)
-
-
+        else:
+            return
+    
     def __len__(self):
         length = 0
         for i in self.array:
@@ -36,7 +43,7 @@ class ArrayList():
             return toReturn + "]"
 
         charList = list(toReturn)
-        print(charList)
+        
         del charList[-1]
         charList[-1] = "]"
 
@@ -45,4 +52,9 @@ class ArrayList():
 
 
 myArr = ArrayList()
+print(myArr)
+
+for i in range(20):
+    myArr.append(f"item {i}")
+
 print(myArr)
