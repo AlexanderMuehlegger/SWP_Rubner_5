@@ -1,0 +1,10 @@
+Operation	Einfach verkettete Liste			Doppelt verkettete Liste			ArrayList		
+	Best Case	Average Case	Worst Case	Best Case	Average Case	Worst Case	Best Case	Average Case	Worst Case
+Einfügen am Anfang	1	n	n	1	n	n	n	n	1
+Einfügen am Ende	n	n	n	1	n	n	1	n	1
+Einfügen an Position	1	n	n	1	n	n	n	n	n
+Löschen am Anfang	1	n	n	1	n	n	n	n	1
+Löschen am Ende	n	n	n	1	n	n	1	n	1
+Löschen an Position	1	n	n	1	n	n	n	n	n
+Zugriff auf Element	1	n	n	1	n	n	1	1	1
+Suche nach Element	1	n	n	1	n	n	1	n	n

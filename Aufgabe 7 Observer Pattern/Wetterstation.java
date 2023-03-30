@@ -1,20 +1,20 @@
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Wetterstation {
 
-    private PublishType _type; 
-    private Wetter _weather;
     private ArrayList<Wetterling> _wetterlings;
+    private final int _stationID;
     
-    public Wetterstation(PublishType type){
-        this._type = type;
+    public Wetterstation(){
         this._wetterlings = new ArrayList<Wetterling>();
+        Random random = new Random();
+        this._stationID = random.nextInt((9999999-1000000) + 1) + 1000000;
     }
 
     public void messen(){
-        this._weather = this._messen();
+        Wetter weather = this._messen();
+        StationManager.setData(weather, this._stationID);
         this.alert();
     }
 
@@ -25,40 +25,20 @@ public class Wetterstation {
 
     private void alert(){
         for(Wetterling wetterling : this._wetterlings){
-            
+            wetterling.alert(this._stationID);
         }
     }
 
-    public void publish(){
-        switch(this._type){
-            case pull:
-                this.publish_pull();
-                break;
-            case push:
-                this.publish_push();
-                break;
-            default:
-                System.err.println("ERROR: 2318237198");
-        }
-        
+    public void removeObserve(Wetterling wetterling){
+        this._wetterlings.remove(wetterling);
+        System.out.println(wetterling.getName() + " remove from Observer");
     }
-
-    private void publish_pull(){
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("NEW DATA AWAILABLE!!!!!\nWant to see it now?(y/n)");
-        String input = scanner.next();
-
-        if(input.equals("y")){
-            System.out.printf("current Temp: %d\ncurrent humitity: %d%\n", this._weather.get_temp(), this._weather.get_airHumit());
-        }
-
-        scanner.close();
+    
+    public void joinObvserve(Wetterling wetterling) {
+        this._wetterlings.add(wetterling);
+        System.out.println(wetterling.getName() + " added to Observer");
     }
-
-    private void publish_push(){
-        System.out.printf("New DATA:\ncurrent Temp: %d\ncurrent humitity: %d%\n", this._weather.get_temp(), this._weather.get_airHumit());
-    }
+    
 }
 
 enum PublishType{

@@ -7,23 +7,21 @@ class DopNode(Node):
     
     def getLast(self):
         return self.last
+    
+    def setLast(self, node):
+        self.last = node
         
 
 class DoppeltVerketteteListe(VerketteteListe):
     def __init__(self):
         super(DoppeltVerketteteListe, self).__init__()
         self.startNode = DopNode('Head')
+        self.lastNode = DopNode('Tale')
 
     def add(self, obj):
         newNode = DopNode(obj)
-        
-        last_node = self.startNode
-        while last_node.next != None:
-            last_node = last_node.next
-        
-        newNode.last = last_node
-
-        last_node.next = newNode
+        newNode.setNext(self.lastNode)
+        self.lastNode.setLast(newNode)
 
     def getLastNode(self):
         return self.lastNode
